@@ -1,0 +1,61 @@
+# Docker Compose file for OpenRouteService - US Production Setup
+# Optimized for Hetzner server deployment covering the entire United States
+# Documentation: https://giscience.github.io/openrouteservice/run-instance/running-with-docker
+
+services:
+  ors-app:
+    build:
+      context: ./
+      target: publish
+    container_name: ors-app-us
+    restart: unless-stopped
+    ports:
+      - "8080:8082" # Expose the ORS API on port 8080
+      - "9001:9001" # JMX monitoring port
+    image: local/openrouteservice:latest
+    volumes:
+      - ./ors-docker:/home/ors # Mount the ORS application directory
+    environment:
+      # Graph building - set to True on first run or when updating OSM data
+      REBUILD_GRAPHS: False
+      CONTAINER_LOG_LEVEL: INFO
+
+      # Configuration file location (will be created if not exists)
+      ORS_CONFIG_LOCATION: /home/ors/config/ors-config.yml
+
+      # ------------------ JAVA Memory Settings ------------------ #
+      # US PBF is ~5-10GB, so for driving-car profile: 10GB * 1 profile * 2 = 20GB minimum
+      # Adjust based on your Hetzner server RAM:
+      # - 32GB RAM server: XMS=8g, XMX=24g (leaves room for OS)
+      # - 64GB RAM server: XMS=16g, XMX=48g
+      # - 128GB RAM server: XMS=32g, XMX=96g
+      XMS: 8g
+      XMX: 24g
+      ADDITIONAL_JAVA_OPTS: ""
+
+      # ----------------- ORS Configuration via ENV (optional) ------------------- #
+      # These can override settings in ors-config.yml
+      # Uncomment and modify as needed:
+      #ors.engine.profile_default.build.source_file: /home/ors/files/us-latest.osm.pbf
+      #ors.engine.profile_default.graph_path: /home/ors/graphs
+      #ors.engine.elevation.cache_path: /home/ors/elevation_cache
+      #ors.engine.profiles.driving-car.enabled: true
+      #logging.level.org.heigit: INFO
+
+    # Healthcheck configuration
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1
+      start_period: 5m # Allow time for initial graph build
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      disable: false
+# Optional: Use Docker managed volumes instead of bind mounts
+# Uncomment below and remove ./ prefix from volume paths above if preferred
+#volumes:
+#    graphs:
+#    elevation_cache:
+#    config:
+#    logs:
+#    files:
+
