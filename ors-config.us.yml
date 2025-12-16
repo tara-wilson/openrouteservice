@@ -134,7 +134,7 @@ ors:
         elevation_smoothing: false
         encoder_flags_size: 8
         instructions: true
-        optimize: true # Enable optimizations for better performance
+        optimize: false # Enable optimizations for better performance
         traffic: false
         maximum_speed_lower_bound: 80
         location_index_resolution: 500
