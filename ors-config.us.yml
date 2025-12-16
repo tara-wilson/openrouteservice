@@ -139,9 +139,9 @@ ors:
       cache_path: elevation_cache
     profile_default:
       enabled: false
-      graph_path: graphs
+      graph_path: graphs/midwest-northeast
       build:
-        source_file: /home/ors/files/us-northeast-latest.osm.pbf # US Northeast OSM PBF file location (NY, PA, NJ, MA, CT, etc.)
+        source_file: /home/ors/files/us-midwest-northeast-merged.osm.pbf # Merged Midwest + Northeast regions
         # Disable elevation to reduce memory usage (enable only if you need elevation data)
         # Elevation data significantly increases memory requirements for large areas like US
         elevation: false

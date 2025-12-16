@@ -18,7 +18,7 @@ services:
     environment:
       # Graph building - set to True on first run or when updating OSM data
       # Set to True to rebuild graphs with new MMAP configuration
-      REBUILD_GRAPHS: True
+      REBUILD_GRAPHS: False # Set to True when building merged US file
       CONTAINER_LOG_LEVEL: INFO
 
       # Configuration file location (will be created if not exists)
@@ -36,10 +36,10 @@ services:
       # - 64GB RAM server: XMS=32g, XMX=56g
       # - 128GB RAM server: XMS=64g, XMX=112g
       # Setting XMS=XMX prevents heap resizing overhead and improves performance
-      XMS: 16g
-      # Increased to 26g to handle PBF parsing spikes (leaves 6GB for OS/Docker on 32GB server)
-      # During PBF parsing, memory can spike temporarily - this gives more headroom
-      XMX: 26g
+      # Using direct US file (not merged) - try with filtered highways-only version
+      # If still OOM, reduce these further
+      XMS: 14g
+      XMX: 24g # Max for 32GB server - leaves 8GB for OS/Docker
       # Additional JVM options for better memory management during PBF parsing
       # Aggressive GC settings to free memory faster during graph building
       # -XX:MaxGCPauseMillis=200 - Target GC pause time
@@ -68,9 +68,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 30g
+          memory: 28g # Reduced to fit 32GB server better
         reservations:
-          memory: 16g
+          memory: 14g
 
     # Healthcheck configuration
     healthcheck:
