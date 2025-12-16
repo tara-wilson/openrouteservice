@@ -17,7 +17,8 @@ services:
       - ./ors-docker:/home/ors # Mount the ORS application directory
     environment:
       # Graph building - set to True on first run or when updating OSM data
-      REBUILD_GRAPHS: False
+      # Set to True to rebuild graphs with new MMAP configuration
+      REBUILD_GRAPHS: True
       CONTAINER_LOG_LEVEL: INFO
 
       # Configuration file location (will be created if not exists)
@@ -26,13 +27,14 @@ services:
       # ------------------ JAVA Memory Settings ------------------ #
       # US PBF is ~5-10GB, so for driving-car profile: 10GB * 1 profile * 2 = 20GB minimum
       # During graph building, memory needs can spike significantly higher (3-4x during peak)
+      # IMPORTANT: For 32GB RAM server, XMX must be <= 24g to leave room for OS (4-6GB) and Docker overhead (2-4GB)
       # Adjust based on your Hetzner server RAM:
-      # - 32GB RAM server: XMS=16g, XMX=40g (leaves room for OS and Docker overhead)
+      # - 32GB RAM server: XMS=16g, XMX=24g (MAX - leaves 8GB for OS/Docker)
       # - 64GB RAM server: XMS=32g, XMX=56g
       # - 128GB RAM server: XMS=64g, XMX=112g
       # Setting XMS=XMX prevents heap resizing overhead and improves performance
       XMS: 16g
-      XMX: 40g
+      XMX: 24g
       # Additional JVM options for better memory management
       ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof"
 
@@ -47,11 +49,11 @@ services:
 
     # Docker memory limits - ensure container has enough memory
     # Set to at least XMX + 6GB for overhead (JVM overhead + OS + Docker)
-    # For XMX=40g, set limit to 46g minimum
+    # For XMX=24g, set limit to 30g (fits within 32GB server)
     deploy:
       resources:
         limits:
-          memory: 46g
+          memory: 30g
         reservations:
           memory: 16g
 

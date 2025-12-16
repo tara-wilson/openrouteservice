@@ -116,7 +116,10 @@ ors:
   engine:
     init_threads: 1
     preparation_mode: false
-    graphs_data_access: RAM_STORE
+    # Use MMAP instead of RAM_STORE to reduce heap memory usage
+    # MMAP uses memory-mapped files (off-heap) instead of loading everything into Java heap
+    # This significantly reduces heap requirements, especially for large datasets like US
+    graphs_data_access: MMAP
     dynamic_data:
       enabled: false
     elevation:
@@ -130,7 +133,9 @@ ors:
       graph_path: graphs
       build:
         source_file: /home/ors/files/us-latest.osm.pbf # US OSM PBF file location
-        elevation: true
+        # Disable elevation to reduce memory usage (enable only if you need elevation data)
+        # Elevation data significantly increases memory requirements for large areas like US
+        elevation: false
         elevation_smoothing: false
         encoder_flags_size: 8
         instructions: true
