@@ -25,14 +25,16 @@ services:
 
       # ------------------ JAVA Memory Settings ------------------ #
       # US PBF is ~5-10GB, so for driving-car profile: 10GB * 1 profile * 2 = 20GB minimum
-      # During graph building, memory needs can spike significantly higher
+      # During graph building, memory needs can spike significantly higher (3-4x during peak)
       # Adjust based on your Hetzner server RAM:
-      # - 32GB RAM server: XMS=8g, XMX=28g (leaves room for OS and Docker overhead)
-      # - 64GB RAM server: XMS=16g, XMX=56g
-      # - 128GB RAM server: XMS=32g, XMX=112g
-      XMS: 8g
-      XMX: 28g
-      ADDITIONAL_JAVA_OPTS: ""
+      # - 32GB RAM server: XMS=16g, XMX=40g (leaves room for OS and Docker overhead)
+      # - 64GB RAM server: XMS=32g, XMX=56g
+      # - 128GB RAM server: XMS=64g, XMX=112g
+      # Setting XMS=XMX prevents heap resizing overhead and improves performance
+      XMS: 16g
+      XMX: 40g
+      # Additional JVM options for better memory management
+      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof"
 
       # ----------------- ORS Configuration via ENV (optional) ------------------- #
       # These can override settings in ors-config.yml
@@ -44,13 +46,14 @@ services:
       #logging.level.org.heigit: INFO
 
     # Docker memory limits - ensure container has enough memory
-    # Set to at least XMX + 4GB for overhead (e.g., 28g + 4g = 32g)
+    # Set to at least XMX + 6GB for overhead (JVM overhead + OS + Docker)
+    # For XMX=40g, set limit to 46g minimum
     deploy:
       resources:
         limits:
-          memory: 32g
+          memory: 46g
         reservations:
-          memory: 8g
+          memory: 16g
 
     # Healthcheck configuration
     healthcheck:
