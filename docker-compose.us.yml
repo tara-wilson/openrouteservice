@@ -34,14 +34,18 @@ services:
       # - 128GB RAM server: XMS=64g, XMX=112g
       # Setting XMS=XMX prevents heap resizing overhead and improves performance
       XMS: 16g
-      XMX: 24g
+      # Increased to 26g to handle PBF parsing spikes (leaves 6GB for OS/Docker on 32GB server)
+      # During PBF parsing, memory can spike temporarily - this gives more headroom
+      XMX: 26g
       # Additional JVM options for better memory management during PBF parsing
       # Aggressive GC settings to free memory faster during graph building
       # -XX:MaxGCPauseMillis=200 - Target GC pause time
       # -XX:G1HeapRegionSize=16m - Larger regions for better efficiency
-      # -XX:InitiatingHeapOccupancyPercent=45 - Start GC earlier
+      # -XX:InitiatingHeapOccupancyPercent=40 - Start GC even earlier (was 45)
       # -XX:ConcGCThreads=4 - Concurrent GC threads
-      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=45 -XX:ConcGCThreads=4"
+      # -XX:+UseStringDeduplication - Reduce memory for duplicate strings
+      # -XX:MaxDirectMemorySize=2g - Limit off-heap memory
+      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=40 -XX:ConcGCThreads=4 -XX:+UseStringDeduplication -XX:MaxDirectMemorySize=2g"
 
       # ----------------- ORS Configuration via ENV (optional) ------------------- #
       # These can override settings in ors-config.yml
@@ -53,8 +57,8 @@ services:
       #logging.level.org.heigit: INFO
 
     # Docker memory limits - ensure container has enough memory
-    # Set to at least XMX + 6GB for overhead (JVM overhead + OS + Docker)
-    # For XMX=24g, set limit to 30g (fits within 32GB server)
+    # Set to at least XMX + 4GB for overhead (JVM overhead + OS + Docker)
+    # For XMX=26g, set limit to 30g (fits within 32GB server, leaves 2GB for host)
     deploy:
       resources:
         limits:

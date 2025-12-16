@@ -13,6 +13,13 @@ server:
     context-path: /ors
   tomcat:
     keep-alive-timeout: 30000
+    # Reduce Tomcat memory footprint during graph building
+    # Smaller thread pools = less memory usage
+    threads:
+      max: 50 # Reduced from default to save memory during build
+      min-spare: 5 # Reduced from default
+    max-connections: 100 # Limit connections to reduce memory
+    accept-count: 50 # Smaller accept queue
 
 spring:
   profiles:
