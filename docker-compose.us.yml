@@ -35,8 +35,13 @@ services:
       # Setting XMS=XMX prevents heap resizing overhead and improves performance
       XMS: 16g
       XMX: 24g
-      # Additional JVM options for better memory management
-      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof"
+      # Additional JVM options for better memory management during PBF parsing
+      # Aggressive GC settings to free memory faster during graph building
+      # -XX:MaxGCPauseMillis=200 - Target GC pause time
+      # -XX:G1HeapRegionSize=16m - Larger regions for better efficiency
+      # -XX:InitiatingHeapOccupancyPercent=45 - Start GC earlier
+      # -XX:ConcGCThreads=4 - Concurrent GC threads
+      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=45 -XX:ConcGCThreads=4"
 
       # ----------------- ORS Configuration via ENV (optional) ------------------- #
       # These can override settings in ors-config.yml
