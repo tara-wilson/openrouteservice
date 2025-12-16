@@ -30,14 +30,16 @@ spring:
 
 ##### Settings related to springdoc #####
 springdoc:
+  # Disable Swagger UI during build to save memory
+  # Can enable after graphs are built
   swagger-ui:
-    enabled: true
+    enabled: false
     path: /swagger-ui
-    tryItOutEnabled: true
+    tryItOutEnabled: false
     filter: false
     syntaxHighlight:
-      activated: true
-    showExtensions: true
+      activated: false
+    showExtensions: false
   api-docs:
     path: /v2/api-docs
     version: OPENAPI_3_0
@@ -144,22 +146,29 @@ ors:
         # Elevation data significantly increases memory requirements for large areas like US
         elevation: false
         elevation_smoothing: false
-        encoder_flags_size: 8
-        instructions: true
-        optimize: false # Enable optimizations for better performance
+        # Reduced encoder flags size to save memory (4 bits instead of 8)
+        encoder_flags_size: 4
+        # Disable instructions during build to save memory (can enable after build)
+        instructions: false
+        optimize: false # Keep disabled to save memory during build
         traffic: false
         maximum_speed_lower_bound: 80
-        location_index_resolution: 500
-        location_index_search_iterations: 4
+        # Increased resolution (lower precision) to reduce memory usage
+        # Higher number = lower precision = less memory
+        location_index_resolution: 1000
+        # Reduced search iterations to save memory
+        location_index_search_iterations: 2
         interpolate_bridges_and_tunnels: true
         preparation:
           min_network_size: 200
           methods:
+            # Disable LM preparation during build to save memory
+            # Can enable after graphs are built if needed
             lm:
-              enabled: true
+              enabled: false
               threads: 1
-              weightings: recommended,shortest
-              landmarks: 16
+              weightings: recommended
+              landmarks: 8 # Reduced if enabled
       service:
         maximum_distance: 100000
         maximum_distance_dynamic_weights: 100000
@@ -184,34 +193,40 @@ ors:
         encoder_name: driving-car
         build:
           encoder_options:
-            turn_costs: true
+            turn_costs: true # Keep enabled (needed for accurate routing)
             block_fords: false
-            use_acceleration: true
+            # Disable acceleration to save memory
+            use_acceleration: false
             enable_custom_models: false
           preparation:
             min_network_size: 200
             methods:
+              # Keep CH enabled (needed for routing)
               ch:
                 enabled: true
                 threads: 1
                 weightings: fastest
               lm:
                 enabled: false
+              # Disable Core preparation during build to save significant memory
+              # Can enable after graphs are built if you need Core routing
               core:
-                enabled: true
+                enabled: false
                 threads: 1
-                weightings: fastest,shortest
-                landmarks: 64
-                lmsets: highways;allow_all
+                weightings: fastest
+                landmarks: 32 # Reduced if enabled
+                lmsets: highways
+          # Disable non-essential ext_storages to save memory
+          # Keep only what's essential for basic routing
           ext_storages:
-            WayCategory:
-            HeavyVehicle:
-            Tollways:
-            WaySurfaceType:
-            RoadAccessRestrictions:
-              use_for_warnings: true
+            # WayCategory:  # Disabled to save memory
+            # HeavyVehicle:  # Disabled to save memory
+            # Tollways:  # Disabled to save memory
+            # WaySurfaceType:  # Disabled to save memory
+            # RoadAccessRestrictions:  # Disabled to save memory
+          # Disable encoded values to save memory
           encoded_values:
-            road_environment: true
+            road_environment: false
         service:
           execution:
             methods:

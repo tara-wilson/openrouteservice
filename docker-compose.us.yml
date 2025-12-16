@@ -24,6 +24,9 @@ services:
       # Configuration file location (will be created if not exists)
       ORS_CONFIG_LOCATION: /home/ors/config/ors-config.yml
 
+      # GC thread optimization - reduce threads to save memory
+      PARALLEL_GC_THREADS: 2
+
       # ------------------ JAVA Memory Settings ------------------ #
       # US PBF is ~5-10GB, so for driving-car profile: 10GB * 1 profile * 2 = 20GB minimum
       # During graph building, memory needs can spike significantly higher (3-4x during peak)
@@ -45,7 +48,10 @@ services:
       # -XX:ConcGCThreads=4 - Concurrent GC threads
       # -XX:+UseStringDeduplication - Reduce memory for duplicate strings
       # -XX:MaxDirectMemorySize=2g - Limit off-heap memory
-      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=40 -XX:ConcGCThreads=4 -XX:+UseStringDeduplication -XX:MaxDirectMemorySize=2g"
+      # -XX:ParallelGCThreads=2 - Reduce GC threads to save memory
+      # -XX:ReservedCodeCacheSize=256m - Limit code cache
+      # -XX:InitialCodeCacheSize=64m - Smaller initial code cache
+      ADDITIONAL_JAVA_OPTS: "-XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/ors/logs/heapdump.hprof -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=40 -XX:ConcGCThreads=4 -XX:ParallelGCThreads=2 -XX:+UseStringDeduplication -XX:MaxDirectMemorySize=2g -XX:ReservedCodeCacheSize=256m -XX:InitialCodeCacheSize=64m"
 
       # ----------------- ORS Configuration via ENV (optional) ------------------- #
       # These can override settings in ors-config.yml
