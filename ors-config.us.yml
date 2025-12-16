@@ -141,7 +141,7 @@ ors:
       enabled: false
       graph_path: graphs
       build:
-        source_file: /home/ors/files/us-latest.osm.pbf # US OSM PBF file location
+        source_file: /home/ors/files/california-latest.osm.pbf # California OSM PBF file location (smaller, works with 32GB RAM)
         # Disable elevation to reduce memory usage (enable only if you need elevation data)
         # Elevation data significantly increases memory requirements for large areas like US
         elevation: false

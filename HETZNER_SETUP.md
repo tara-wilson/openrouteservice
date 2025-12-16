@@ -114,13 +114,25 @@ sudo sysctl -p
 cp ors-config.us.yml ors-docker/config/ors-config.yml
 ```
 
-### Step 6: Adjust Memory Settings
+### Step 6: Choose Your Dataset Size
 
-Edit `docker-compose.us.yml` and adjust memory settings based on your server RAM:
+**Option A: Build Individual States (Recommended for 32GB RAM)**
 
-- **32GB RAM**: `XMS: 8g`, `XMX: 24g`
-- **64GB RAM**: `XMS: 16g`, `XMX: 48g`
-- **128GB RAM**: `XMS: 32g`, `XMX: 96g`
+Individual states are much smaller and will work on 32GB RAM:
+- California: ~1.5GB PBF → ~8-12GB RAM needed
+- Texas: ~1.2GB PBF → ~8-10GB RAM needed
+- New York: ~500MB PBF → ~4-6GB RAM needed
+
+Use the helper script:
+```bash
+./build-state.sh california
+```
+
+**Option B: Full US (Requires 64GB+ RAM)**
+
+If you have 64GB+ RAM, edit `docker-compose.us.yml`:
+- **64GB RAM**: `XMS: 32g`, `XMX: 56g`
+- **128GB RAM**: `XMS: 64g`, `XMX: 112g`
 
 ### Step 7: Build and Start
 
@@ -139,8 +151,11 @@ The memory needed depends on:
 - **Rule of thumb**: `PBF_size × profiles × 2 = minimum RAM needed`
 
 For US with `driving-car` profile:
-- Minimum: 10GB × 1 × 2 = **20GB RAM**
-- Recommended: **32GB+ RAM** for better performance
+- **Full US**: Requires **64GB+ RAM** (32GB is insufficient - PBF parsing needs 40-50GB temporarily)
+- **Single State** (e.g., California): **32GB RAM** is sufficient
+- **Multiple States**: Build separately, then run multiple instances or combine graphs
+
+**IMPORTANT**: The full US dataset is too large for 32GB RAM servers. Use individual states instead.
 
 ### Available Profiles
 
