@@ -46,11 +46,46 @@ echo -e "${GREEN}✓ Directories created${NC}"
 echo ""
 echo -e "${GREEN}Step 2: Setting up configuration files...${NC}"
 for region in pacific west northeast south midwest; do
+    # Check if source config exists, if not create it from template
+    if [ ! -f "ors-config-${region}.yml" ]; then
+        if [ -f "ors-config.us.yml" ]; then
+            cp "ors-config.us.yml" "ors-config-${region}.yml"
+            # Update source file and graph path based on region
+            case "$region" in
+                pacific)
+                    sed -i 's|source_file:.*|source_file: /home/ors/files/us-pacific-latest.osm.pbf|' "ors-config-${region}.yml"
+                    sed -i 's|graph_path: graphs|graph_path: graphs/pacific|' "ors-config-${region}.yml"
+                    ;;
+                west)
+                    sed -i 's|source_file:.*|source_file: /home/ors/files/us-west-latest.osm.pbf|' "ors-config-${region}.yml"
+                    sed -i 's|graph_path: graphs|graph_path: graphs/west|' "ors-config-${region}.yml"
+                    ;;
+                northeast)
+                    sed -i 's|source_file:.*|source_file: /home/ors/files/us-northeast-latest.osm.pbf|' "ors-config-${region}.yml"
+                    sed -i 's|graph_path: graphs|graph_path: graphs/northeast|' "ors-config-${region}.yml"
+                    ;;
+                south)
+                    sed -i 's|source_file:.*|source_file: /home/ors/files/us-south-latest.osm.pbf|' "ors-config-${region}.yml"
+                    sed -i 's|graph_path: graphs|graph_path: graphs/south|' "ors-config-${region}.yml"
+                    ;;
+                midwest)
+                    sed -i 's|source_file:.*|source_file: /home/ors/files/us-midwest-latest.osm.pbf|' "ors-config-${region}.yml"
+                    sed -i 's|graph_path: graphs|graph_path: graphs/midwest|' "ors-config-${region}.yml"
+                    ;;
+            esac
+            echo -e "${GREEN}✓ Created ors-config-${region}.yml from template${NC}"
+        else
+            echo -e "${RED}✗ Error: ors-config.us.yml not found!${NC}"
+            exit 1
+        fi
+    fi
+    
+    # Copy to config directory
     if [ ! -f "ors-docker/config/ors-config-${region}.yml" ]; then
         cp "ors-config-${region}.yml" "ors-docker/config/ors-config-${region}.yml"
-        echo -e "${GREEN}✓ ${region} config created${NC}"
+        echo -e "${GREEN}✓ ${region} config copied to config directory${NC}"
     else
-        echo -e "${YELLOW}${region} config already exists${NC}"
+        echo -e "${YELLOW}${region} config already exists in config directory${NC}"
     fi
 done
 
