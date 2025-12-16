@@ -29,8 +29,8 @@ services:
       # - 32GB RAM server: XMS=8g, XMX=24g (leaves room for OS)
       # - 64GB RAM server: XMS=16g, XMX=48g
       # - 128GB RAM server: XMS=32g, XMX=96g
-      XMS: 8g
-      XMX: 24g
+      XMS: 4g
+      XMX: 10g
       ADDITIONAL_JAVA_OPTS: ""
 
       # ----------------- ORS Configuration via ENV (optional) ------------------- #
